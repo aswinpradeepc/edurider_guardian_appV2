@@ -2,6 +2,7 @@
   "expo": {
     "name": "guardian-app",
     "slug": "guardian-app",
+    "scheme": "guardianapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,13 +14,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "in.radr.guardianapp"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "in.radr.guardianapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
