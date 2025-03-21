@@ -7,12 +7,14 @@ import {
   ActivityIndicator, 
   Modal, 
   TextInput,
-  Alert
+  Alert,
+  SafeAreaView
 } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types/navigation';
+import { Ionicons } from '@expo/vector-icons'; // Using Expo icons instead of images
 
 // Register for the authentication callback
 WebBrowser.maybeCompleteAuthSession();
@@ -89,6 +91,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       await AsyncStorage.setItem('refresh_token', authData.refresh_token);
       await AsyncStorage.setItem('user_data', JSON.stringify(authData.user));
       
+      // Store the student ID for later use
+      if (authData.user.associated_id) {
+        await AsyncStorage.setItem('student_id', authData.user.associated_id);
+      }
+      
       // Close modal and navigate to home
       setShowTokenInput(false);
       navigation.replace('Home');
@@ -99,18 +106,36 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity 
-        style={styles.googleButton}
-        onPress={handleGoogleSignIn}
-        disabled={isLoading}
-      >
-        {isLoading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Sign in with Google</Text>
-        )}
-      </TouchableOpacity>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.contentContainer}>
+        <View style={styles.logoContainer}>
+          <Ionicons name="bus" size={80} color="#FFA500" />
+        </View>
+        
+        <Text style={styles.title}>EduRider</Text>
+        <Text style={styles.subtitle}>Guardian App</Text>
+        
+        <View style={styles.infoContainer}>
+          <Text style={styles.infoText}>
+            Connect with your child's school bus service to track location, receive notifications, and ensure safe transportation.
+          </Text>
+        </View>
+        
+        <TouchableOpacity 
+          style={styles.googleButton}
+          onPress={handleGoogleSignIn}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="#fff" size="small" />
+          ) : (
+            <>
+              <Ionicons name="logo-google" size={24} color="#fff" style={styles.buttonIcon} />
+              <Text style={styles.buttonText}>Sign in with Google</Text>
+            </>
+          )}
+        </TouchableOpacity>
+      </View>
 
       {/* JSON Input Modal */}
       <Modal
@@ -154,27 +179,70 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  contentContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f5f5f5',
+  },
+  logoContainer: {
+    marginBottom: 20,
+    padding: 20,
+    borderRadius: 60,
+    backgroundColor: 'rgba(255, 165, 0, 0.1)',
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#FFA500', // Orange for school bus theme
+    marginBottom: 5,
+  },
+  subtitle: {
+    fontSize: 18,
+    color: '#555',
+    marginBottom: 30,
+  },
+  infoContainer: {
+    backgroundColor: 'rgba(255, 165, 0, 0.1)', // Light orange background
+    borderRadius: 10,
+    padding: 20,
+    marginBottom: 30,
+    width: '100%',
+    maxWidth: 400,
+  },
+  infoText: {
+    fontSize: 16,
+    color: '#555',
+    textAlign: 'center',
+    lineHeight: 24,
   },
   googleButton: {
     backgroundColor: '#4285F4',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 5,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '80%',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    width: '100%',
+    maxWidth: 300,
+  },
+  buttonIcon: {
+    marginRight: 10,
   },
   buttonText: {
     color: '#ffffff',
@@ -197,11 +265,17 @@ const styles = StyleSheet.create({
     padding: 20,
     width: '100%',
     maxWidth: 400,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#333',
   },
   modalSubtitle: {
     fontSize: 14,
@@ -211,11 +285,12 @@ const styles = StyleSheet.create({
   tokenInput: {
     borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 5,
-    padding: 10,
+    borderRadius: 8,
+    padding: 12,
     marginBottom: 20,
-    height: 150, // Increased height for JSON
+    height: 150,
     textAlignVertical: 'top',
+    backgroundColor: '#f9f9f9',
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -224,12 +299,12 @@ const styles = StyleSheet.create({
   modalButton: {
     flex: 1,
     paddingVertical: 12,
-    borderRadius: 5,
+    borderRadius: 8,
     alignItems: 'center',
     marginHorizontal: 5,
   },
   cancelButton: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#f1f1f1',
   },
   submitButton: {
     backgroundColor: '#4285F4',
